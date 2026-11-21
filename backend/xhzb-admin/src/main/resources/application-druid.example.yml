@@ -1,0 +1,46 @@
+# 示例数据源配置：复制为 application-druid.yml 后填入本地数据库和 Druid 控制台凭据。
+# 请勿将真实数据库密码或管理口令提交到仓库。
+spring:
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    druid:
+      master:
+        url: jdbc:mysql://localhost:3306/xhzb?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+        username: <LOCAL_MYSQL_USERNAME>
+        password: <LOCAL_MYSQL_PASSWORD>
+      slave:
+        enabled: false
+        url: <OPTIONAL_SLAVE_JDBC_URL>
+        username: <OPTIONAL_SLAVE_USERNAME>
+        password: <OPTIONAL_SLAVE_PASSWORD>
+      initialSize: 5
+      minIdle: 10
+      maxActive: 20
+      maxWait: 60000
+      connectTimeout: 30000
+      socketTimeout: 60000
+      timeBetweenEvictionRunsMillis: 60000
+      minEvictableIdleTimeMillis: 300000
+      maxEvictableIdleTimeMillis: 900000
+      validationQuery: SELECT 1 FROM DUAL
+      testWhileIdle: true
+      testOnBorrow: false
+      testOnReturn: false
+      webStatFilter:
+        enabled: true
+      statViewServlet:
+        enabled: true
+        allow: 127.0.0.1
+        url-pattern: /druid/*
+        login-username: <LOCAL_DRUID_USERNAME>
+        login-password: <LOCAL_DRUID_PASSWORD>
+      filter:
+        stat:
+          enabled: true
+          log-slow-sql: true
+          slow-sql-millis: 1000
+          merge-sql: true
+        wall:
+          config:
+            multi-statement-allow: true
