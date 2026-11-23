@@ -177,6 +177,12 @@
                 <version>${xhzb.version}</version>
             </dependency>
 
+            <!-- 养老项目专用模块 -->
+            <dependency>
+                <groupId>com.xhzb</groupId>
+                <artifactId>xhzb-nursing-platform</artifactId>
+                <version>${xhzb.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -187,6 +193,7 @@
         <module>xhzb-quartz</module>
         <module>xhzb-generator</module>
         <module>xhzb-common</module>
+        <module>xhzb-nursing-platform</module>
     </modules>
     <packaging>pom</packaging>
 
@@ -235,5 +242,4 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
-
 </project>
