@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC '-//mybatis.org//DTD Mapper 3.0//EN'
+  'http://mybatis.org/dtd/mybatis-3-mapper.dtd'>
+<mapper namespace="com.xhzb.nursing.mapper.NursingManageMapper">
+    
+ 
+    <resultMap id="PlanMap" type="NursingPlan">
+        <id property="id" column="id"/>
+        <result property="sortNo" column="sort_no"/>
+        <result property="planName" column="plan_name"/>
+        <result property="status" column="status"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    
+ 
+    <resultMap id="ProjectPlanMap" type="NursingProjectPlan">
+        <id property="id" column="id"/>
+        <result property="planId" column="plan_id"/>
+        <result property="projectId" column="project_id"/>
+        <result property="projectName" column="project_name"/>
+        <result property="executeTime" column="execute_time"/>
+        <result property="executeCycle" column="execute_cycle"/>
+        <result property="executeFrequency" column="execute_frequency"/>
+    </resultMap>
+    
+ 
+    <resultMap id="LevelMap" type="NursingLevel">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="lplanId" column="lplan_id"/>
+        <result property="planName" column="plan_name"/>
+        <result property="fee" column="fee"/>
+        <result property="status" column="status"/>
+        <result property="description" column="description"/>
+        <result property="createBy" column="create_by"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="remark" column="remark"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+    
+ 
+    <select id="selectPlanList" resultMap="PlanMap">
+        select * from nursing_plan 
+        <where>
+            <if test="planName!=null and planName!=''">and plan_name like concat('%',#{planName},'%')</if>
+            <if test="status!=null">and status=#{status}</if>
+        </where>
+         order by sort_no,id
+    </select>
+    
+ 
+    <select id="selectPlanById" resultMap="PlanMap">select * from nursing_plan where id=#{id}</select>
+    
+ 
+    <select id="selectPlanProjects" resultMap="ProjectPlanMap">select pp.*,p.name project_name from nursing_project_plan pp left join nursing_project p on p.id=pp.project_id where pp.plan_id=#{id} order by pp.id</select>
+    
+ 
+    <insert id="insertPlan" useGeneratedKeys="true" keyProperty="id">insert into nursing_plan(sort_no,plan_name,status,create_time,create_by,remark) values(#{sortNo},#{planName},#{status},#{createTime},#{createBy},#{remark})</insert>
+    
+ 
+    <update id="updatePlan">update nursing_plan set sort_no=#{sortNo},plan_name=#{planName},status=#{status},update_time=#{updateTime},update_by=#{updateBy},remark=#{remark} where id=#{id}</update>
+    
+ 
+    <delete id="deletePlanProjects">delete from nursing_project_plan where plan_id=#{id}</delete>
+    
+ 
+    <insert id="insertPlanProject" useGeneratedKeys="true" keyProperty="id">insert into nursing_project_plan(plan_id,project_id,execute_time,execute_cycle,execute_frequency,create_time,create_by,remark) values(#{planId},#{projectId},#{executeTime},#{executeCycle},#{executeFrequency},#{createTime},#{createBy},#{remark})</insert>
+    
+ 
+    <select id="countPlanReferences" resultType="int">select (select count(*) from nursing_project_plan where plan_id=#{id})+(select count(*) from nursing_level where lplan_id=#{id})</select>
+    
+ 
+    <delete id="deletePlans">
+        delete from nursing_plan where id in 
+        <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    
+ 
+    <select id="selectAvailableProjects" resultType="NursingProject">select id,name from nursing_project where status=1 order by order_no,id</select>
+    
+ 
+    <select id="selectLevelList" resultMap="LevelMap">
+        select l.*,p.plan_name from nursing_level l left join nursing_plan p on p.id=l.lplan_id 
+        <where>
+            <if test="name!=null and name!=''">and l.name like concat('%',#{name},'%')</if>
+            <if test="status!=null">and l.status=#{status}</if>
+            <if test="lplanId!=null">and l.lplan_id=#{lplanId}</if>
+        </where>
+         order by l.id desc
+    </select>
+    
+ 
+    <select id="selectLevelById" resultMap="LevelMap">select l.*,p.plan_name from nursing_level l left join nursing_plan p on p.id=l.lplan_id where l.id=#{id}</select>
+    
+ 
+    <insert id="insertLevel" useGeneratedKeys="true" keyProperty="id">insert into nursing_level(name,lplan_id,fee,status,description,create_time,create_by,remark) values(#{name},#{lplanId},#{fee},#{status},#{description},#{createTime},#{createBy},#{remark})</insert>
+    
+ 
+    <update id="updateLevel">update nursing_level set name=#{name},lplan_id=#{lplanId},fee=#{fee},status=#{status},description=#{description},update_time=#{updateTime},update_by=#{updateBy},remark=#{remark} where id=#{id}</update>
+    
+ 
+    <delete id="deleteLevels">
+        delete from nursing_level where id in 
+        <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+    
+ 
+    <select id="countLevelName" resultType="int">
+        select count(*) from nursing_level where name=#{name}
+        <if test="id!=null">and id!=#{id}</if>
+    </select>
+    
+ 
+    <select id="countEnabledPlan" resultType="int">select count(*) from nursing_plan where id=#{id} and status=1</select>
+    
+
+</mapper>
