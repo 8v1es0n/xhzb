@@ -68,12 +68,19 @@
     
  
     <delete id="deletePlanProjects">delete from nursing_project_plan where plan_id=#{id}</delete>
+
+    <delete id="deletePlanProjectsByPlanIds">
+        delete from nursing_project_plan where plan_id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
     
  
     <insert id="insertPlanProject" useGeneratedKeys="true" keyProperty="id">insert into nursing_project_plan(plan_id,project_id,execute_time,execute_cycle,execute_frequency,create_time,create_by,remark) values(#{planId},#{projectId},#{executeTime},#{executeCycle},#{executeFrequency},#{createTime},#{createBy},#{remark})</insert>
     
  
-    <select id="countPlanReferences" resultType="int">select (select count(*) from nursing_project_plan where plan_id=#{id})+(select count(*) from nursing_level where lplan_id=#{id})</select>
+    <select id="countPlanLevelReferences" resultType="int">
+        select count(*) from nursing_level where lplan_id = #{id}
+    </select>
     
  
     <delete id="deletePlans">

@@ -1,6 +1,7 @@
 package com.xhzb.nursing.service.impl;
 
 import com.xhzb.common.utils.DateUtils;
+import com.xhzb.common.exception.ServiceException;
 import com.xhzb.nursing.domain.NursingProject;
 import com.xhzb.nursing.mapper.NursingProjectMapper;
 import com.xhzb.nursing.service.INursingProjectService;
@@ -80,6 +81,10 @@ public class NursingProjectServiceImpl implements INursingProjectService
     @Override
     public int deleteNursingProjectByIds(Long[] ids)
     {
+        if (nursingProjectMapper.countNursingProjectPlanReferences(ids) > 0)
+        {
+            throw new ServiceException("护理项目已被护理计划引用，请先在护理计划中移除该项目");
+        }
         return nursingProjectMapper.deleteNursingProjectByIds(ids);
     }
 
@@ -92,6 +97,10 @@ public class NursingProjectServiceImpl implements INursingProjectService
     @Override
     public int deleteNursingProjectById(Long id)
     {
+        if (nursingProjectMapper.countNursingProjectPlanReferences(new Long[] { id }) > 0)
+        {
+            throw new ServiceException("护理项目已被护理计划引用，请先在护理计划中移除该项目");
+        }
         return nursingProjectMapper.deleteNursingProjectById(id);
     }
 }

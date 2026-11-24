@@ -21,11 +21,13 @@ public interface NursingManageMapper {
 
     int updatePlan(NursingPlan plan);
 
-    int deletePlanProjects(Long id);
+    int deletePlanProjects(@Param("id") Long id);
+
+    int deletePlanProjectsByPlanIds(Long[] ids);
 
     int insertPlanProject(NursingProjectPlan row);
 
-    int countPlanReferences(Long id);
+    int countPlanLevelReferences(Long id);
 
     int deletePlans(Long[] ids);
 

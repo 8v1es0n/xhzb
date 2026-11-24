@@ -3,6 +3,9 @@ package com.xhzb.nursing.service.impl;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +22,7 @@ import com.xhzb.nursing.service.INursingManageService;
 @Service
 public class NursingManageServiceImpl implements INursingManageService
 {
+    private static final Logger log = LoggerFactory.getLogger(NursingManageServiceImpl.class);
     @Autowired
     private NursingManageMapper nursingManageMapper;
 
@@ -46,6 +50,11 @@ public class NursingManageServiceImpl implements INursingManageService
     @Transactional
     public int savePlan(NursingPlan nursingPlan)
     {
+        List<NursingProjectPlan> submittedProjects = nursingPlan.getProjects();
+        log.info("[临时诊断] 保存护理计划开始: planId={}, projectsPresent={}, projectIds={}",
+                nursingPlan.getId(), submittedProjects != null,
+                submittedProjects == null ? null : submittedProjects.stream()
+                        .map(NursingProjectPlan::getProjectId).collect(Collectors.toList()));
         if (nursingPlan.getId() == null)
         {
             nursingPlan.setCreateTime(DateUtils.getNowDate());
@@ -57,8 +66,9 @@ public class NursingManageServiceImpl implements INursingManageService
             nursingManageMapper.updatePlan(nursingPlan);
         }
 
-        nursingManageMapper.deletePlanProjects(nursingPlan.getId());
-        List<NursingProjectPlan> projects = nursingPlan.getProjects();
+        int deletedRows = nursingManageMapper.deletePlanProjects(nursingPlan.getId());
+        log.info("[临时诊断] 清理护理计划项目关联: planId={}, deletedRows={}", nursingPlan.getId(), deletedRows);
+        List<NursingProjectPlan> projects = submittedProjects;
         if (projects != null)
         {
             Set<Long> projectIds = new HashSet<>();
@@ -71,22 +81,25 @@ public class NursingManageServiceImpl implements INursingManageService
                 project.setPlanId(nursingPlan.getId());
                 project.setCreateTime(DateUtils.getNowDate());
                 nursingManageMapper.insertPlanProject(project);
+                log.info("[临时诊断] 写入护理计划项目关联: planId={}, projectId={}", nursingPlan.getId(), project.getProjectId());
             }
         }
         return 1;
     }
 
-    /** 批量删除护理计划；存在项目或等级引用时拒绝删除。 */
+    /** 批量删除护理计划；存在护理等级引用时拒绝删除。 */
     @Override
+    @Transactional
     public int deletePlans(Long[] ids)
     {
         for (Long id : ids)
         {
-            if (nursingManageMapper.countPlanReferences(id) > 0)
+            if (nursingManageMapper.countPlanLevelReferences(id) > 0)
             {
-                throw new ServiceException("该护理计划已被护理项目或护理等级引用，无法删除");
+                throw new ServiceException("该护理计划已被护理等级引用，无法删除");
             }
         }
+        nursingManageMapper.deletePlanProjectsByPlanIds(ids);
         return nursingManageMapper.deletePlans(ids);
     }
 

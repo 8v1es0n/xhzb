@@ -61,4 +61,12 @@ public interface NursingProjectMapper
      * @return 结果
      */
     public int deleteNursingProjectByIds(Long[] ids);
+
+    /**
+     * 查询护理项目是否被护理计划引用
+     *
+     * @param ids 护理项目主键集合
+     * @return 引用记录数
+     */
+    public int countNursingProjectPlanReferences(Long[] ids);
 }
