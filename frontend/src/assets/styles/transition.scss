@@ -6,19 +6,19 @@
   transition: opacity 0.28s;
 }
 
-.fade-enter-from,
+.fade-enter,
 .fade-leave-active {
   opacity: 0;
 }
 
 /* fade-transform */
-.fade-transform--move,
-.fade-transform-leave-active,
-.fade-transform-enter-active {
-  transition: all .5s;
-}
+// .fade-transform--move,
+// .fade-transform-leave-active,
+// .fade-transform-enter-active {
+//   transition: all .5s;
+// }
 
-.fade-transform-enter-from {
+.fade-transform-enter {
   opacity: 0;
   transform: translateX(-30px);
 }
@@ -34,7 +34,7 @@
   transition: all .5s;
 }
 
-.breadcrumb-enter-from,
+.breadcrumb-enter,
 .breadcrumb-leave-active {
   opacity: 0;
   transform: translateX(20px);
@@ -46,35 +46,4 @@
 
 .breadcrumb-leave-active {
   position: absolute;
-}
-
-/* 黑暗模式下过渡效果 */
-::view-transition-new(root), ::view-transition-old(root) {
-  animation: none !important;
-  backface-visibility: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-
-.dark::view-transition-old(root) {
-  z-index: 2147483646;
-  background: var(--bg-color-dark); 
-}
-
-.dark::view-transition-new(root) {
-  z-index: 1;
-  background: var(--bg-color);
-}
-
-::view-transition-old(root) {
-  z-index: 1;
-  background: var(--bg-color);
-}
-
-::view-transition-new(root) {
-  z-index: 2147483646;
-  background: var(--bg-color-dark);
 }

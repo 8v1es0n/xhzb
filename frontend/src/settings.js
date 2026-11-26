@@ -3,21 +3,19 @@ export default {
    * 网页标题
    */
   title: import.meta.env.VITE_APP_TITLE,
-
   /**
    * 侧边栏主题 深色主题theme-dark，浅色主题theme-light
    */
-  sideTheme: 'theme-dark',
-
+  sideTheme: 'theme-light',
   /**
    * 是否系统布局配置
    */
   showSettings: true,
 
   /**
-   * 菜单导航模式 1、纯左侧 2、混合（左侧+顶部） 3、纯顶部
+   * 是否显示顶部导航
    */
-  navType: 1,
+  topNav: false,
 
   /**
    * 是否显示 tagsView
@@ -25,24 +23,9 @@ export default {
   tagsView: true,
 
   /**
-   * 持久化标签页
-   */
-  tagsViewPersist: false,
-
-  /**
-   * 显示页签图标
-   */
-  tagsIcon: false,
-
-  /**
-   * 标签页样式：card 卡片（默认）、chrome 谷歌浏览器风格
-   */
-  tagsViewStyle: 'card',
-
-  /**
    * 是否固定头部
    */
-  fixedHeader: true,
+  fixedHeader: false,
 
   /**
    * 是否显示logo
@@ -55,13 +38,10 @@ export default {
   dynamicTitle: false,
 
   /**
-   * 是否显示底部版权
+   * @type {string | array} 'production' | ['production', 'development']
+   * @description Need show err logs component.
+   * The default is only used in the production env
+   * If you want to also use it in dev, you can pass ['production', 'development']
    */
-  footerVisible: false,
-
-  /**
-   * 底部版权文本内容
-   */
-  footerContent: 'Copyright © 2018-2026 XHZB. All Rights Reserved.'
+  errorLog: 'production'
 }
-

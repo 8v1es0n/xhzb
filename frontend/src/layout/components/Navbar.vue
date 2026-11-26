@@ -1,65 +1,48 @@
 <template>
-  <div class="navbar" :class="'nav' + settingsStore.navType">
+  <div class="navbar">
     <hamburger id="hamburger-container" :is-active="appStore.sidebar.opened" class="hamburger-container" @toggleClick="toggleSideBar" />
-    <breadcrumb v-if="settingsStore.navType == 1" id="breadcrumb-container" class="breadcrumb-container" />
-    <top-nav v-if="settingsStore.navType == 2" id="topmenu-container" class="topmenu-container" />
-    <template v-if="settingsStore.navType == 3">
-      <logo v-show="settingsStore.sidebarLogo" :collapse="false"></logo>
-      <top-bar id="topbar-container" class="topbar-container" />
-    </template>
+    <breadcrumb id="breadcrumb-container" class="breadcrumb-container" v-if="!settingsStore.topNav" />
+    <top-nav id="topmenu-container" class="topmenu-container" v-if="settingsStore.topNav" />
 
     <div class="right-menu">
       <template v-if="appStore.device !== 'mobile'">
         <header-search id="header-search" class="right-menu-item" />
 
-        <el-tooltip content="源码地址" effect="dark" placement="bottom">
-          <ruo-yi-git id="xhzb-git" class="right-menu-item hover-effect" />
+        <!-- <el-tooltip content="源码地址" effect="dark" placement="bottom">
+          <ruo-yi-git id="ruoyi-git" class="right-menu-item hover-effect" />
         </el-tooltip>
 
         <el-tooltip content="文档地址" effect="dark" placement="bottom">
-          <ruo-yi-doc id="xhzb-doc" class="right-menu-item hover-effect" />
+          <ruo-yi-doc id="ruoyi-doc" class="right-menu-item hover-effect" />
         </el-tooltip>
-
+ -->
         <screenfull id="screenfull" class="right-menu-item hover-effect" />
-
-        <el-tooltip content="主题模式" effect="dark" placement="bottom">
-          <div class="right-menu-item hover-effect theme-switch-wrapper" @click="toggleTheme">
-            <svg-icon v-if="settingsStore.isDark" icon-class="sunny" />
-            <svg-icon v-if="!settingsStore.isDark" icon-class="moon" />
-          </div>
-        </el-tooltip>
 
         <el-tooltip content="布局大小" effect="dark" placement="bottom">
           <size-select id="size-select" class="right-menu-item hover-effect" />
         </el-tooltip>
-
-        <el-tooltip content="消息通知" effect="dark" placement="bottom">
-          <header-notice id="header-notice" class="right-menu-item hover-effect" />
-        </el-tooltip>
       </template>
-
-      <el-dropdown @command="handleCommand" class="avatar-container right-menu-item hover-effect" trigger="hover">
-        <div class="avatar-wrapper">
-          <img :src="userStore.avatar" class="user-avatar" />
-          <span class="user-nickname"> {{ userStore.nickName }} </span>
-        </div>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <router-link to="/user/profile">
-              <el-dropdown-item>个人中心</el-dropdown-item>
-            </router-link>
-            <el-dropdown-item command="setLayout" v-if="settingsStore.showSettings">
+      <div class="avatar-container">
+        <el-dropdown @command="handleCommand" class="right-menu-item hover-effect" trigger="click">
+          <div class="avatar-wrapper">
+            <img :src="userStore.avatar" class="user-avatar" />
+            <el-icon><caret-bottom /></el-icon>
+          </div>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <router-link to="/user/profile">
+                <el-dropdown-item>个人中心</el-dropdown-item>
+              </router-link>
+              <el-dropdown-item command="setLayout" v-if="settingsStore.showSettings">
                 <span>布局设置</span>
-            </el-dropdown-item>
-            <el-dropdown-item command="lockScreen">
-                <span>锁定屏幕</span>
-            </el-dropdown-item>
-            <el-dropdown-item divided command="logout">
-              <span>退出登录</span>
-            </el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+              </el-dropdown-item>
+              <el-dropdown-item divided command="logout">
+                <span>退出登录</span>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+      </div>
     </div>
   </div>
 </template>
@@ -67,26 +50,19 @@
 <script setup>
 import { ElMessageBox } from 'element-plus'
 import Breadcrumb from '@/components/Breadcrumb'
-import TopNav from './TopNav'
-import TopBar from './TopBar'
-import Logo from './Sidebar/Logo'
+import TopNav from '@/components/TopNav'
 import Hamburger from '@/components/Hamburger'
 import Screenfull from '@/components/Screenfull'
 import SizeSelect from '@/components/SizeSelect'
 import HeaderSearch from '@/components/HeaderSearch'
-import XHZBGit from '@/components/XHZB/Git'
-import XHZBDoc from '@/components/XHZB/Doc'
+import RuoYiGit from '@/components/RuoYi/Git'
+import RuoYiDoc from '@/components/RuoYi/Doc'
 import useAppStore from '@/store/modules/app'
 import useUserStore from '@/store/modules/user'
-import useLockStore from '@/store/modules/lock'
 import useSettingsStore from '@/store/modules/settings'
-import HeaderNotice from './HeaderNotice'
 
-const route = useRoute()
-const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
-const lockStore = useLockStore()
 const settingsStore = useSettingsStore()
 
 function toggleSideBar() {
@@ -96,111 +72,49 @@ function toggleSideBar() {
 function handleCommand(command) {
   switch (command) {
     case "setLayout":
-      setLayout()
-      break
-    case "lockScreen":
-      lockScreen()
-      break
+      setLayout();
+      break;
     case "logout":
-      logout()
-      break
+      logout();
+      break;
     default:
-      break
+      break;
   }
 }
 
 function logout() {
-  ElMessageBox.confirm('确定注销并退出系统吗？', '提示', {
+  ElMessageBox.confirm('此操作将退出登录，是否继续？', '确认退出', {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
     type: 'warning'
   }).then(() => {
     userStore.logOut().then(() => {
-      location.href = '/index'
+      location.href = '/index';
     })
-  }).catch(() => { })
+  }).catch(() => { });
 }
 
 const emits = defineEmits(['setLayout'])
 function setLayout() {
-  emits('setLayout')
-}
-
-function lockScreen() {
-  const currentPath = route.fullPath
-  lockStore.lockScreen(currentPath)
-  router.push('/lock')
-}
-
-async function toggleTheme(event) {
-  const x = event?.clientX || window.innerWidth / 2
-  const y = event?.clientY || window.innerHeight / 2
-  const wasDark = settingsStore.isDark
-
-  const isReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  const isSupported = document.startViewTransition && !isReducedMotion
-
-  if (!isSupported) {
-    settingsStore.toggleTheme()
-    return
-  }
-
-  try {
-    const transition = document.startViewTransition(async () => {
-      await new Promise((resolve) => setTimeout(resolve, 10))
-      settingsStore.toggleTheme()
-      await nextTick()
-    })
-    await transition.ready
-
-    const endRadius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y))
-    const clipPath = [`circle(0px at ${x}px ${y}px)`, `circle(${endRadius}px at ${x}px ${y}px)`]
-    document.documentElement.animate(
-      {
-        clipPath: !wasDark ? [...clipPath].reverse() : clipPath
-      }, {
-        duration: 650,
-        easing: "cubic-bezier(0.4, 0, 0.2, 1)",
-        fill: "forwards",
-        pseudoElement: !wasDark ? "::view-transition-old(root)" : "::view-transition-new(root)"
-      }
-    )
-    await transition.finished
-  } catch (error) {
-    console.warn("View transition failed, falling back to immediate toggle:", error)
-    settingsStore.toggleTheme()
-  }
+  emits('setLayout');
 }
 </script>
 
 <style lang='scss' scoped>
-.navbar.nav3 {
-  .hamburger-container {
-    display: none !important;
-  }
-}
-
 .navbar {
   height: 50px;
   overflow: hidden;
   position: relative;
-  background: var(--navbar-bg);
-  box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
-  display: flex;
-  align-items: center;
-  // padding: 0 8px;
-  box-sizing: border-box;
-
+  // background: #fff;
+  // box-shadow: 0 1px 4px rgba(0, 21, 41, 0.08);
+ margin-left: 24px;
   .hamburger-container {
     line-height: 46px;
     height: 100%;
+    float: left;
     cursor: pointer;
     transition: background 0.3s;
     -webkit-tap-highlight-color: transparent;
-    display: flex;
-    align-items: center;
-    flex-shrink: 0;
-    margin-right: 8px;
 
     &:hover {
       background: rgba(0, 0, 0, 0.025);
@@ -208,7 +122,7 @@ async function toggleTheme(event) {
   }
 
   .breadcrumb-container {
-    flex-shrink: 0;
+    float: left;
   }
 
   .topmenu-container {
@@ -216,21 +130,16 @@ async function toggleTheme(event) {
     left: 50px;
   }
 
-  .topbar-container {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    align-items: center;
-    overflow: hidden;
-    margin-left: 8px;
+  .errLog-container {
+    display: inline-block;
+    vertical-align: top;
   }
 
   .right-menu {
+    float: right;
     height: 100%;
     line-height: 50px;
     display: flex;
-    align-items: center;
-    margin-left: auto;
 
     &:focus {
       outline: none;
@@ -252,44 +161,20 @@ async function toggleTheme(event) {
           background: rgba(0, 0, 0, 0.025);
         }
       }
-
-      &.theme-switch-wrapper {
-        display: flex;
-        align-items: center;
-
-        svg {
-          transition: transform 0.3s;
-          
-          &:hover {
-            transform: scale(1.15);
-          }
-        }
-      }
     }
 
     .avatar-container {
-      margin-right: 0px;
-      padding-right: 0px;
+      margin-right: 40px;
 
       .avatar-wrapper {
-        margin-top: 10px;
-        right: 8px;
+        margin-top: 5px;
         position: relative;
 
         .user-avatar {
           cursor: pointer;
-          width: 30px;
-          height: 30px;
-          margin-right: 8px;
-          border-radius: 50%;
-        }
-
-        .user-nickname{
-          position: relative;
-          left: 0px;
-          bottom: 10px;
-          font-size: 14px;
-          font-weight: bold;
+          width: 40px;
+          height: 40px;
+          border-radius: 10px;
         }
 
         i {

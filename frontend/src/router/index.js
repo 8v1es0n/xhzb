@@ -64,17 +64,11 @@ export const constantRoutes = [
     children: [
       {
         path: '/index',
-        component: () => import('@/views/index'),
+        component: () => import('@/views/dashboard/index'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }
       }
     ]
-  },
-  {
-    path: '/lock',
-    component: () => import('@/views/lock'),
-    hidden: true,
-    meta: { title: '锁定屏幕' }
   },
   {
     path: '/user',
@@ -83,7 +77,7 @@ export const constantRoutes = [
     redirect: 'noredirect',
     children: [
       {
-        path: 'profile/:activeTab?',
+        path: 'profile',
         component: () => import('@/views/system/user/profile/index'),
         name: 'Profile',
         meta: { title: '个人中心', icon: 'user' }
@@ -163,6 +157,98 @@ export const dynamicRoutes = [
         meta: { title: '修改生成配置', activeMenu: '/tool/gen' }
       }
     ]
+  },
+  // 配置评估详情的路由，解决左侧菜单不显示当前状态的问题
+  {
+    path: '/enterQuit',
+    component: Layout,
+    hidden: true,
+    permissions: ['enterQuit:healthAssessment:detailsSteps'],
+    meta: { title: '入退管理', },
+    children: [
+      {
+        path: 'detailsSteps',
+        component: () => import('@/views/nursing/healthAssessment/detailsSteps.vue'),
+        name: 'DetailsSteps',
+        meta: { title: '健康评估', activeMenu: '/enterQuit/healthAssessment' }
+      }
+    ]
+  },
+  {
+    path: '/enterQuit',
+    component: Layout,
+    hidden: true,
+    permissions: ['enterQuit:healthAssessment:details'],
+    meta: { title: '入退管理', },
+    children: [
+      {
+        path: 'healthDetails',
+        component: () => import('@/views/nursing/healthAssessment/details.vue'),
+        name: 'HealthAssessmentDetails',
+        meta: { title: '健康评估详情', activeMenu: '/enterQuit/healthAssessment' }
+      }
+    ]
+  },
+  {
+    path: '/enterQuit',
+    component: Layout,
+    hidden: true,
+    permissions: ['nursing:checkIn:add'],
+    meta: { title: '入住管理', },
+    children: [
+      {
+        path: 'checkInInfo',
+        component: () => import('@/views/nursing/checkIn/details.vue'),
+        name: 'CheckInDetails',
+        meta: { title: '入住申请', activeMenu: '/enterQuit/checkIn' }
+      }
+    ]
+  },
+  {
+    path: '/enterQuit',
+    component: Layout,
+    hidden: true,
+    permissions: ['nursing:checkIn:edit'],
+    meta: { title: '入住管理', },
+    children: [
+      {
+        path: 'detailsLook',
+        component: () => import('@/views/nursing/checkIn/details.vue'),
+        name: 'CheckInDetailsLook',
+        meta: { title: '入住详情', activeMenu: '/enterQuit/checkIn' }
+      }
+    ]
+  },
+  // 报警规则
+  {
+    path: '/intelligence',
+    component: Layout,
+    hidden: true,
+    permissions: ['nursing:alertRule:add'],
+    meta: { title: '智能监测', },
+    children: [
+      {
+        path: 'ruleAdd',
+        component: () => import('@/views/nursing/alertRule/details.vue'),
+        name: 'RuleAdd',
+        meta: { title: '新增报警规则', activeMenu: '/intelligence/alertRule' }
+      }
+    ]
+  },
+  {
+    path: '/intelligence',
+    component: Layout,
+    hidden: true,
+    permissions: ['nursing:alertRule:add'],
+    meta: { title: '智能监测', },
+    children: [
+      {
+        path: 'ruleEdit',
+        component: () => import('@/views/nursing/alertRule/details.vue'),
+        name: 'RuleEdit',
+        meta: { title: '修改报警规则', activeMenu: '/intelligence/alertRule' }
+      }
+    ]
   }
 ]
 
@@ -172,9 +258,10 @@ const router = createRouter({
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
       return savedPosition
+    } else {
+      return { top: 0 }
     }
-    return { top: 0 }
   },
-})
+});
 
-export default router
+export default router;

@@ -1,17 +1,17 @@
-import { parseTime } from './xhzb'
+import {parseTime} from './ruoyi'
 
 /**
  * 表格时间格式化
  */
 export function formatDate(cellValue) {
-  if (cellValue == null || cellValue == "") return ""
-  const date = new Date(cellValue) 
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1
-  const day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate() 
-  const hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours() 
-  const minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes() 
-  const seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
+  if (cellValue == null || cellValue == "") return "";
+  var date = new Date(cellValue) 
+  var year = date.getFullYear()
+  var month = date.getMonth() + 1 < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1
+  var day = date.getDate() < 10 ? '0' + date.getDate() : date.getDate() 
+  var hours = date.getHours() < 10 ? '0' + date.getHours() : date.getHours() 
+  var minutes = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes() 
+  var seconds = date.getSeconds() < 10 ? '0' + date.getSeconds() : date.getSeconds()
   return year + '-' + month + '-' + day + ' ' + hours + ':' + minutes + ':' + seconds
 }
 
@@ -84,7 +84,7 @@ export function getQueryObject(url) {
 export function byteLength(str) {
   // returns the byte length of an utf8 string
   let s = str.length
-  for (let i = str.length - 1; i >= 0; i--) {
+  for (var i = str.length - 1; i >= 0; i--) {
     const code = str.charCodeAt(i)
     if (code > 0x7f && code <= 0x7ff) s++
     else if (code > 0x7ff && code <= 0xffff) s += 2
@@ -388,3 +388,38 @@ export function isNumberStr(str) {
   return /^[+-]?(0|([1-9]\d*))(\.\d+)?$/g.test(str)
 }
  
+// 钱数自动补充两位小数
+export function decimalsReplenish(value) {
+  console.log('value', value)
+  value = typeof value === 'string' ? Number(value) : value
+  if (!value) return '0.00'
+
+  value = value.toFixed(2)
+  const intPart = Math.trunc(value) // 获取整数部分
+  let intPartFormat = intPart.toString().replace(/(\d)(?=(?:\d{3})+$)/g, '$1,') // 将整数部分逢三一断
+  if (value < 0 && value > -1) {
+    intPartFormat = `-${intPartFormat}`
+  }
+  // 去除，分隔符
+  if (intPartFormat.indexOf(',') !== -1) {
+    intPartFormat = intPartFormat.split(',').join('')
+  }
+
+  let floatPart = '.00' // 预定义小数部分
+  const value2Array = value.split('.')
+  // =2表示数据有小数位
+  if (value2Array.length === 2) {
+    floatPart = value2Array[1].toString() // 拿到小数部分
+    if (floatPart.length === 1) {
+      return `${intPartFormat}.${floatPart}0`
+    }
+    return `${intPartFormat}.${floatPart}`
+  }
+  return intPartFormat + floatPart
+}
+// 获取文件类型（简化版）
+export function getFileType (url) {
+  if (!url) return '';
+  const extension = url.split('.').pop().toLowerCase();
+  return extension || '';
+};

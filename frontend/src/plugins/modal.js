@@ -1,6 +1,6 @@
 import { ElMessage, ElMessageBox, ElNotification, ElLoading } from 'element-plus'
 
-let loadingInstance
+let loadingInstance;
 
 export default {
   // 消息提示
@@ -41,7 +41,7 @@ export default {
   },
   // 错误通知
   notifyError(content) {
-    ElNotification.error(content)
+    ElNotification.error(content);
   },
   // 成功通知
   notifySuccess(content) {
@@ -52,8 +52,8 @@ export default {
     ElNotification.warning(content)
   },
   // 确认窗体
-  confirm(content) {
-    return ElMessageBox.confirm(content, "系统提示", {
+  confirm(content,title) {
+    return ElMessageBox.confirm(content, title?title:'系统提示', {
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: "warning",
@@ -77,6 +77,6 @@ export default {
   },
   // 关闭遮罩层
   closeLoading() {
-    loadingInstance.close()
+    loadingInstance.close();
   }
 }
